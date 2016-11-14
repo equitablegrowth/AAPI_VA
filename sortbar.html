@@ -1,0 +1,239 @@
+<html>
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script>
+
+<style>
+	.contain_barsort {max-width:900;padding-top:17px;}
+	hr {border-width:2px 0 0 0;border-style:solid;border-color:#d9d9d9;margin-top:27;width:95%;}
+</style>
+</head>
+
+<body><div class='contain_barsort'>
+<div class='svg'><svg id='bars' width='100%' viewBox='0 0 900 627'></svg></div></div>
+</body>
+
+<script defer>
+
+var bars=Snap('#bars')
+var ordered=0
+var sorting=0
+var maxdata0=0
+var maxdata1=0
+var maxdata2=0
+var sortbar_data={'Total Population': ['Total Population', 'All', 1, 12.9, 27.6, 29, 19, 11.6], '   Vietnamese': ['Vietnamese', 'Southeast Asian', 20, 26.6, 22.6, 22.3, 20.2, 8.3], '   Taiwanese': ['Taiwanese', 'East Asian', 12, 4.2, 6.9, 11.6, 32.8, 44.6], '   Samoan': ['Samoan', 'Polynesian', 30, 12, 39.3, 35.2, 9.4, 4.1], '   Bangladeshi': ['Bangladeshi', 'South Asian', 22, 16, 19.7, 17.6, 25.7, 20.9], '   Hmong': ['Hmong', 'Southeast Asian', 16, 26.5, 24, 29.7, 15.7, 4], '   Korean': ['Korean', 'East Asian', 11, 7.5, 17.8, 19.9, 34.3, 20.5], '   Pakistani': ['Pakistani', 'South Asian', 24, 12.4, 16.7, 17.7, 29.9, 23.4], 'White': ['White', 'All', 2, 7.7, 27.9, 30.1, 21.2, 13], 'Some other race': ['Some other race', 'All', 6, 17.1, 22.9, 25.5, 22.5, 12], '   Indonesian': ['Indonesian', 'Southeast Asian', 17, 7.5, 15.9, 27.3, 30.4, 19], 'Hawaiian/Pacific Islander': ['Hawaiian/Pacific Islander', 'AAPI', 25, 11.1, 35.6, 37.1, 11.6, 4.6], 'Asian American': ['Asian American', 'AAPI', 8, 13.5, 15.4, 18.6, 30.1, 22.4], '   Polynesian': ['Polynesian', 'Polynesian', 28, 9.9, 38.3, 36.5, 10.5, 4.8], 'Hispanic or Latino': ['Hispanic or Latino', 'All', 4, 34, 27.6, 23.6, 10.2, 4.6], '   Thai': ['Thai', 'Southeast Asian', 19, 17.1, 15.7, 21.4, 28.4, 17.4], 'American Indian/Alaskan': ['American Indian/Alaska Native', 'All', 5, 17.7, 33, 34.6, 9.6, 5.1], '   Filipino': ['Filipino', 'Southeast Asian', 15, 7.4, 15.6, 29.5, 38.5, 9], '   Asian Indian': ['Asian Indian', 'South Asian', 21, 7.9, 9, 9.7, 32.6, 40.8], '   Burmese': ['Burmese', 'Southeast Asian', 13, 49.9, 18.6, 11.3, 13.9, 6.4], 'African American': ['African American', 'All', 3, 15.2, 31.6, 33, 12.8, 7.4], 'Two or more races': ['Two or more races', 'All', 7, 9.3, 22.1, 35.5, 21, 12.1], '   Chinese': ['Chinese', 'East Asian', 9, 17.2, 14.2, 13.9, 26.9, 27.8], '   Micronesian': ['Micronesian', 'Micronesian', 26, 16.4, 31.3, 37.6, 11.2, 3.6], '   Guamanian/Chamorro': ['Guamanian or Chamorro', 'Micronesian', 27, 13.3, 30.8, 37.5, 13.7, 4.7], '   Japanese': ['Japanese', 'East Asian', 10, 4.5, 18.6, 26, 34, 17], '   Native Hawaiian': ['Native Hawaiian', 'Polynesian', 29, 8.8, 38.2, 36.4, 11.5, 5.2], '   Laotian': ['Laotian', 'Southeast Asian', 18, 29, 32.6, 24.3, 10.4, 3.7], '   Cambodian': ['Cambodian', 'Southeast Asian', 14, 31.5, 26.8, 23.8, 13.8, 4.2], '   Nepalese': ['Nepalese', 'South Asian', 23, 27.7, 16, 15, 23.5, 17.9]}
+var barscale=['#fee0b6','#f1a340','#d8daeb','#998ec3','#542788']
+var header1=bars.text(5,20,'Dummy head').attr({'font-family':'Lato','font-size':22,'font-weight':700})
+var header1=bars.text(5,40,'Click a column header to sort the chart, or hover over a row for more detail.').attr({'font-family':'Lato','font-size':18,'font-weight':400})
+
+draw_bars()
+
+function sort_data(index){
+	data_list=[]
+	for (var key in sortbar_data) {
+		data_list.push([key,sortbar_data[key][index]])
+	}
+
+		data_list.sort(function(a,b){
+			var x=a[1];
+			var y=b[1]
+			if(index==2){
+				return x-y
+			}
+			return y-x
+		})
+
+	return data_list
+}
+
+
+function draw_bars(){
+	// Headers
+	var head_text_0=bars.text(16,79,'race/ethnicity').attr({'font-weight':400,'font-size':15,'font-family':'Lato','text-anchor':'start','id':0})
+	var head_text_0=bars.text(173,79,'< high school').attr({'font-weight':400,'font-size':15,'font-family':'Lato','text-anchor':'start','id':0})
+	var head_text_1=bars.text(321,79,'high school').attr({'font-weight':400,'font-size':15,'font-family':'Lato','text-anchor':'start','id':1})
+	var head_text_2=bars.text(469,79,'some college').attr({'font-weight':400,'font-size':15,'font-family':'Lato','text-anchor':'start','id':2})
+	var head_text_3=bars.text(617,79,"Bachelor's degree").attr({'font-weight':400,'font-size':15,'font-family':'Lato','text-anchor':'start','id':2})
+	var head_text_4=bars.text(765,79,'advanced degree').attr({'font-weight':400,'font-size':15,'font-family':'Lato','text-anchor':'start','id':2})
+
+	var arrow_0=bars.polyline(3,73,13,73,8,78).attr({fill:'#000','ident':'arrow_0',cursor:'pointer'})
+	var arrow_1=bars.polyline(160,73,170,73,165,78).attr({fill:'#D0D0D0','ident':'arrow_1',cursor:'pointer'})
+	var arrow_2=bars.polyline(308,73,318,73,313,78).attr({fill:'#D0D0D0','ident':'arrow_2',cursor:'pointer'})
+	var arrow_3=bars.polyline(456,73,466,73,461,78).attr({fill:'#D0D0D0','ident':'arrow_3',cursor:'pointer'})
+	var arrow_4=bars.polyline(604,73,614,73,609,78).attr({fill:'#D0D0D0','ident':'arrow_4',cursor:'pointer'})
+	var arrow_5=bars.polyline(752,73,762,73,757,78).attr({fill:'#D0D0D0','ident':'arrow_5',cursor:'pointer'})
+
+	var header_backing_0=bars.rect(0,59,130,27).attr({'fill':'white',opacity:0,cursor:'pointer'})
+	var header_backing_1=bars.rect(157,59,130,27).attr({'fill':'white',opacity:0,cursor:'pointer'})
+	var header_backing_2=bars.rect(305,59,130,27).attr({'fill':'white',opacity:0,cursor:'pointer'})
+	var header_backing_3=bars.rect(453,59,130,27).attr({'fill':'white',opacity:0,cursor:'pointer'})
+	var header_backing_4=bars.rect(601,59,130,27).attr({'fill':'white',opacity:0,cursor:'pointer'})
+	var header_backing_5=bars.rect(749,59,130,27).attr({'fill':'white',opacity:0,cursor:'pointer'})
+
+	sortbar_click_handler(header_backing_0,2)
+	sortbar_click_handler(header_backing_1,3)
+	sortbar_click_handler(header_backing_2,4)
+	sortbar_click_handler(header_backing_3,5)
+	sortbar_click_handler(header_backing_4,6)
+	sortbar_click_handler(header_backing_5,7)
+
+	// Section divs
+	var section_div0=bars.line(159,85,159,1006).attr({strokeWidth:1,'stroke':'#a0a0a0'})
+	var section_div1=bars.line(307,85,307,1006).attr({strokeWidth:1,'stroke':'#a0a0a0'})
+	var section_div2=bars.line(455,85,455,1006).attr({strokeWidth:1,'stroke':'#a0a0a0'})
+	var section_div2=bars.line(603,85,603,1006).attr({strokeWidth:1,'stroke':'#a0a0a0'})
+	var section_div2=bars.line(751,85,751,1006).attr({strokeWidth:1,'stroke':'#a0a0a0'})
+
+	// Drawing the bars
+	sorted0=sort_data(2)
+	sorted1=sort_data(3)
+	sorted2=sort_data(4)
+	sorted3=sort_data(5)
+	sorted4=sort_data(6)
+	sorted5=sort_data(7)
+
+	maxdata=50
+
+	for (var i=0;i<30;i++) {
+		if (i%2==0){
+			bars.rect(-2,86+i*18,1070,18).attr({opacity:0.05,fill:'#000000',strokeWidth:0,stroke:'black'})
+		}
+	}
+
+	for (var i=0;i<sorted0.length;i++) {
+		var row_data=sortbar_data[sorted0[i][0]]
+
+		length0=pick_size(sortbar_data[sorted0[i][0]][3],maxdata)
+		length1=pick_size(sortbar_data[sorted0[i][0]][4],maxdata)
+		length2=pick_size(sortbar_data[sorted0[i][0]][5],maxdata)
+		length3=pick_size(sortbar_data[sorted0[i][0]][6],maxdata)
+		length4=pick_size(sortbar_data[sorted0[i][0]][7],maxdata)
+
+		var state_label=bars.text(3,100+i*18,sorted0[i][0]).attr({'font-weight':300,'font-size':13,'font-family':'Lato','text-anchor':'start','state':sorted0[i][0],'ident':'barel'})
+		state_label.node.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space", "preserve")
+		if(['Asian American','   Chinese','   Japanese','   Korean','   Taiwanese','   Burmese','   Cambodian','   Filipino','   Hmong','   Cambodian','   Indonesian','   Laotian','   Thai','   Vietnamese','   Asian Indian','   Bangladeshi','   Nepalese','   Pakistani'].indexOf(sorted0[i][0])!=-1){
+			state_label.attr({fill:'#67c2a5'})
+		}
+		if(['Hawaiian/Pacific Islander','   Micronesian','   Guamanian/Chamorro','   Polynesian','   Native Hawaiian','   Samoan'].indexOf(sorted0[i][0])!=-1){
+			state_label.attr({fill:'#F58C63'})
+		}
+		if(['Hawaiian/Pacific Islander','Asian American'].indexOf(sorted0[i][0])!=-1){
+			state_label.attr({fontWeight:600})
+		}
+		if(['Hawaiian/Pacific Islander'].indexOf(sorted0[i][0])!=-1){
+			state_label.attr({fill:'#c63f26'})
+		}
+		if(['Asian American'].indexOf(sorted0[i][0])!=-1){
+			state_label.attr({fill:'#33836A'})
+		}
+		var lhs_bar=bars.rect(160,89+i*18,length0,13).attr({fill:barscale[0],'state':sorted0[i][0],'ident':'barel'})
+		var hs_bar=bars.rect(308,89+i*18,length1,13).attr({fill:barscale[1],'state':sorted0[i][0],'ident':'barel'})
+		var sc_bar=bars.rect(456,89+i*18,length2,13).attr({fill:barscale[2],'state':sorted0[i][0],'ident':'barel'})
+		var bs_bar=bars.rect(604,89+i*18,length3,13).attr({fill:barscale[3],'state':sorted0[i][0],'ident':'barel'})
+		var ad_bar=bars.rect(752,89+i*18,length4,13).attr({fill:barscale[4],'state':sorted0[i][0],'ident':'barel'})
+		var hoverarea=bars.rect(0,86+i*18,900,18).attr({opacity:0,fill:'#000000',strokeWidth:1,stroke:'black','state':sorted0[i][0],'ident':'highel'})
+
+		// sortbar_hover_handler(hoverarea)
+		hoverarea.hover(function() {highlight(hoverarea)},function() {unhighlight(hoverarea)})
+	}
+}
+
+function sortbar_click_handler(backer,index){
+	backer.click(function() {reorder(index)})
+}
+
+function sortbar_hover_handler(hoverarea){
+	hoverarea.hover(function() {highlight(hoverarea)},function() {unhighlight(hoverarea)})
+}
+
+function pick_size(value,max_data_value){
+	var size=(value/max_data_value)*115
+	size=size.toFixed(0)
+	size=parseInt(size)+.5
+	return size
+}
+
+function reorder(index){
+	if(sorting==0 && ordered!=index){
+		if(index==2){bars.select('polyline[ident="arrow_0"]').attr({fill:'black'});bars.select('polyline[ident="arrow_1"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_2"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_3"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_4"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_5"]').attr({fill:'#d0d0d0'})}
+		if(index==3){bars.select('polyline[ident="arrow_1"]').attr({fill:'black'});bars.select('polyline[ident="arrow_0"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_2"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_3"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_4"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_5"]').attr({fill:'#d0d0d0'})}
+		if(index==4){bars.select('polyline[ident="arrow_2"]').attr({fill:'black'});bars.select('polyline[ident="arrow_0"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_1"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_3"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_4"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_5"]').attr({fill:'#d0d0d0'})}
+		if(index==5){bars.select('polyline[ident="arrow_3"]').attr({fill:'black'});bars.select('polyline[ident="arrow_0"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_1"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_2"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_4"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_5"]').attr({fill:'#d0d0d0'})}
+		if(index==6){bars.select('polyline[ident="arrow_4"]').attr({fill:'black'});bars.select('polyline[ident="arrow_0"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_1"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_2"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_3"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_5"]').attr({fill:'#d0d0d0'})}
+		if(index==7){bars.select('polyline[ident="arrow_5"]').attr({fill:'black'});bars.select('polyline[ident="arrow_0"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_1"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_2"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_3"]').attr({fill:'#d0d0d0'});bars.select('polyline[ident="arrow_4"]').attr({fill:'#d0d0d0'})}
+
+		console.log(index)
+		ordered=index
+		sorting=1
+		sorted=sort_data(index)
+		i=0
+		bars.selectAll('text[ident="barel"]').animate({opacity:0},200,function(){stateloop(sorted)})
+
+		function stateloop(sorted) {
+			setTimeout(function () {
+				if (i<29){
+					barstate=sorted[i][0]
+					bars.selectAll('rect[state="'+barstate+'"][ident="barel"]').attr({opacity:.5})
+					bars.selectAll('rect[state="'+barstate+'"][ident="barel"]').animate({y:89+i*18},115,mina.easeout)
+					bars.selectAll('rect[state="'+barstate+'"][ident="highel"]').attr({y:86+i*18})
+					bars.selectAll('text[state="'+barstate+'"]').attr({y:100+i*18})
+					i++
+					stateloop(sorted)
+				}
+				if (i==29) {
+					barstate=sorted[i][0]
+					bars.selectAll('rect[state="'+barstate+'"][ident="barel"]').attr({opacity:.5})
+					bars.selectAll('rect[state="'+barstate+'"][ident="highel"]').attr({y:86+i*18})
+					bars.selectAll('text[state="'+barstate+'"]').attr({y:100+i*18})
+					bars.selectAll('rect[state="'+barstate+'"][ident="barel"]').animate({y:89+i*18},115,mina.easeout,function(){bars.selectAll('rect[ident="barel"]').attr({opacity:1});bars.selectAll('text[ident="barel"]').animate({opacity:1},400,function(){sorting=0})})
+				}
+			},30)
+		}
+	}
+}
+
+function highlight(hoverarea){
+	if(sorting==0){
+		bars.selectAll('rect[ident="highel"][state="'+hoverarea.node.attributes.state.value+'"]').animate({opacity:.15},200)
+		var t1=bars.text(pick_size(sortbar_data[hoverarea.node.attributes.state.value][3],maxdata)+162,parseInt(hoverarea.node.attributes.y.value)+14,sortbar_data[hoverarea.node.attributes.state.value][3].toFixed(0)+'%').attr({opacity:0,'font-weight':400,'font-size':13,'font-family':'Lato','text-anchor':'start','ident':'label',pointerEvents:'none'})
+		var t2=bars.text(pick_size(sortbar_data[hoverarea.node.attributes.state.value][4],maxdata)+310,parseInt(hoverarea.node.attributes.y.value)+14,sortbar_data[hoverarea.node.attributes.state.value][4].toFixed(0)+'%').attr({opacity:0,'font-weight':400,'font-size':13,'font-family':'Lato','text-anchor':'start','ident':'label',pointerEvents:'none'})
+		var t3=bars.text(pick_size(sortbar_data[hoverarea.node.attributes.state.value][5],maxdata)+458,parseInt(hoverarea.node.attributes.y.value)+14,sortbar_data[hoverarea.node.attributes.state.value][5].toFixed(0)+'%').attr({opacity:0,'font-weight':400,'font-size':13,'font-family':'Lato','text-anchor':'start','ident':'label',pointerEvents:'none'})
+		var t4=bars.text(pick_size(sortbar_data[hoverarea.node.attributes.state.value][6],maxdata)+606,parseInt(hoverarea.node.attributes.y.value)+14,sortbar_data[hoverarea.node.attributes.state.value][6].toFixed(0)+'%').attr({opacity:0,'font-weight':400,'font-size':13,'font-family':'Lato','text-anchor':'start','ident':'label',pointerEvents:'none'})
+		var t5=bars.text(pick_size(sortbar_data[hoverarea.node.attributes.state.value][7],maxdata)+754,parseInt(hoverarea.node.attributes.y.value)+14,sortbar_data[hoverarea.node.attributes.state.value][7].toFixed(0)+'%').attr({opacity:0,'font-weight':400,'font-size':13,'font-family':'Lato','text-anchor':'start','ident':'label',pointerEvents:'none'})
+		t1.animate({opacity:1},200)
+		t2.animate({opacity:1},200)
+		t3.animate({opacity:1},200)
+		t4.animate({opacity:1},200)
+		t5.animate({opacity:1},200)
+	}
+}
+
+function unhighlight(hoverarea){
+	if(sorting==0){
+		bars.selectAll('rect[ident="highel"][state="'+hoverarea.node.attributes.state.value+'"]').animate({opacity:0},200)
+		bars.selectAll('text[ident="label"]').remove()
+	}
+}
+
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

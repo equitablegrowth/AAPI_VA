@@ -1,0 +1,308 @@
+<html>
+
+<head>
+	<title>disaggregating asian/PI</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+	<style>
+	body{font-family:'Lato';}
+	svg{background:#efefef;}
+	.constraint{max-width:700;}
+	.bigcircle{font-size:14px;}
+	#tooltip{position:fixed;font-size:12px;background:black;color:white;opacity:.8;padding:3px;}
+	</style>
+</head>
+
+<div id='tooltip' style='left:-9999px'></div>
+
+<body>
+	<div class='constraint'>
+		<svg viewbox='0 0 700 700' id='svg'>
+		</svg>
+	</div>
+</div>
+<br>
+
+</body>
+
+<script>
+var zoomout=0
+var zoomin=0
+var paper=Snap('#svg')
+var g=paper.group()
+var width=700
+var height=700
+var padding=30
+var ethn={
+	'White':[197553955],
+	'Hispanic of Latino':     [56476777],
+	'African American':       [39650251],
+	'Asian American':         [17029044,{
+		'East Asian':         [6335767,{
+			'Chinese':        [3963274],
+			'Korean':         [1443223],
+			'Japanese':       [751498],
+			'Taiwanese':      [158331],
+			'Mongolian':      [19441],
+		}],
+		'Southeast Asian':[5693036,{
+			'Filipino':        [2770521],
+			'Vietnamese':      [1745147],
+			'Hmong':           [280679],
+			'Cambodian':       [263881],
+			'Laotian':         [199339],
+			'Thai':            [186625],
+			'Burmese':         [150925],
+			'Indonesian':      [76265],
+			'Malaysian':       [19654],
+		}],
+		'South Asian':[4544271,{
+			'Asian Indian':    [3687695],
+			'Pakistani':       [470437],
+			'Bangladeshi':     [182305],
+			'Nepalese':        [132166],
+			'Sri Lankan':      [53176],
+			'Bhutanese':       [18492],
+		}],
+		'Other Asian':[455970,{}],
+	}],
+	'Two or more races':[7490181],
+	'American Indian/Alaska Native':[2065003],
+	'Some other race':[682448],
+	'Native Hawaiian/Pacific Islander':[471162,{
+		'Polynesian':[295480,{
+			'Native Hawaiian':[144671],
+			'Samoan':[108565],
+			'Tongan':[42244],
+		}],
+		'Micronesian':[80524,{
+			'Guamanian or Chamorro':[59950],
+			'Other Micronesian':[20574],
+		}],
+		'Other Pacific Islander':[32993,{}],
+		'Melanesian':[27651,{
+			'Fijian':[27651],
+		}]
+	}],
+}
+var mainscale=['#33836A','#C63F26','#3F578C']
+var asianscale=['#8E2A1D','#C63F26','#F58C63','#FBCDBB']
+var piscale=['#24385b','#3f578c','#8c9fca','#ccdaf0']
+
+function setup(){
+	// paper.text(padding,padding,'Hover/click a circle to see how aggregate race/ethnicity categories can ').attr({fontWeight:700,fontSize:20})
+
+	// draw initial circles
+	var total=0
+	for(var key in ethn){
+		total=total+ethn[key][0]
+	}
+
+	// everyone else
+	var r=1.2*(width-2*padding)/4
+	var area=Math.PI*Math.pow(r,2)
+	var ee=paper.circle(padding+r,60+r,r).attr({fill:mainscale[0]})
+	g.add(ee)
+	var hoverme=paper.text(padding+r,65+r,'(hover/tap me)').attr({fill:'white',textAnchor:'middle',pointerEvents:'none'})
+	g.add(hoverme)
+
+	ee.hover(function(){
+		hoverme.attr({opacity:0})
+		var i=0
+		var length=Object.keys(ethn).length-2
+		for(var key in ethn){
+			if(key!='Asian American' & key!='Native Hawaiian/Pacific Islander'){
+				var temp=paper.text(padding+r-140,(60+r)-((length-2)/2)*22+i*22,key+': ').attr({textAnchor:'start',temp:1,pointerEvents:'none',opacity:1,class:'bigcircle',fill:'white'})
+				g.add(temp)
+				var temp2=paper.text(padding+r+120,(60+r)-((length-2)/2)*22+i*22,((ethn[key][0]/total)*100).toFixed(1)+'%').attr({textAnchor:'end',temp:1,pointerEvents:'none',opacity:1,class:'bigcircle',fill:'white'})
+				g.add(temp2)
+				i=i+1
+			}
+		}
+	}, function(){
+		paper.selectAll('[temp]').attr({opacity:0})
+		paper.selectAll('[temp]').remove()
+		hoverme.attr({opacity:1})
+	})
+
+
+	// asian
+	var aarea=(ethn['Asian American'][0]/total)*area
+	var ar=Math.pow((aarea/Math.PI),.5)
+	var ac=[padding+2*r+90,60+r]
+	var aa=paper.circle(ac[0],ac[1],ar).attr({fill:mainscale[1],cursor:'pointer',type:'Asian American'})
+	g.add(aa)
+
+	aa.hover(function(){
+		// hoverme.attr({opacity:0})
+		var text=paper.text(ac[0],ac[1]-ar-10,'Asian American'+': '+((ethn['Asian American'][0]/total)*100).toFixed(1)+'%').attr({textAnchor:'middle',fontSize:16,temp:1,pointerEvents:'none'})
+		var clickme=paper.text(ac[0],ac[1]+6,'(click me)').attr({textAnchor:'middle',pointerEvents:'none',temp:1,fontSize:16,fill:'white'})
+		g.add(clickme)
+		g.add(text)
+	}, function(){
+		paper.selectAll('[temp]').remove()
+	})
+
+	aa.click(function(){
+		expand(aa,pi)
+	})
+
+	// pacific islander
+	var piarea=(ethn['Native Hawaiian/Pacific Islander'][0]/total)*area
+	var pir=Math.pow((piarea/Math.PI),.5)
+	var pic=[padding+2*r+2*ar+100,60+r]
+	var pi=paper.circle(pic[0],pic[1],pir).attr({fill:mainscale[2],type:'Native Hawaiian/Pacific Islander'})
+	g.add(pi)
+	
+	pi.hover(function(){
+		hoverme.animate({opacity:0})
+		var label=paper.text(pic[0],pic[1]-pir-32,['Native Hawaiian or','Pacific Islander'+': '+((ethn['Native Hawaiian/Pacific Islander'][0]/total)*100).toFixed(1)+'%']).attr({textAnchor:'middle',fontSize:16,temp:1,pointerEvents:'none'})
+		label.selectAll("tspan:not(:first-child)").attr({x:label.attr('x'),dy:22})
+		g.add(label)
+	}, function(){
+		paper.selectAll('[temp]').remove()
+	})
+
+	pi.click(function(){
+		expand(pi,aa)
+	})
+}
+
+function expand(circle,othercircle){
+	// svg.selectAll("rect").forEach(function(elem){elem.stop();});
+
+	// remove expand click and add un-expand click
+	circle.unclick()
+	othercircle.unclick()
+
+	// expand asian
+	// zoom on Asian circle
+	paper.selectAll('[temp]').remove()
+	var ac=[parseFloat(circle.attr('cx')),parseFloat(circle.attr('cy'))]
+	var ar=parseFloat(circle.attr('r'))
+	var centers=g.getBBox()
+	var xtrans=centers.cx-ac[0]
+	var ytrans=centers.cy-ac[1]
+	if(circle.attr('type')=='Asian American'){
+		var scale=2
+		var asa=1
+	} else {
+		var scale=6
+	}
+
+	g.animate({transform:'T'+((scale+.7)*xtrans)+','+(-(200-ar))+'S'+scale},1000,mina.easein,function(){
+		var aarea=Math.pow(circle.attr('r'),2)*Math.PI
+		var i=0
+		for(var key in ethn[circle.attr('type')][1]){
+			var radius=Math.pow((ethn[circle.attr('type')][1][key][0]/ethn[circle.attr('type')][0])*aarea/Math.PI,.5)
+			if(radius<3){radius=3}
+			if(asa===1){var colors=asianscale[2]}else{var colors=piscale[2]}
+			var circ=paper.circle(ac[0]+ar/2+radius+15/scale,parseFloat(ac[1]),radius).attr({temp2:1,fill:colors,subtype:key,type:circle.attr('type'),class:'subtype',circ2:1,subtype:key,per:(ethn[circle.attr('type')][1][key][0]/ethn[circle.attr('type')][0]*100).toFixed(2)+'%'})
+			g.add(circ)
+			circ.animate({cy:parseFloat(ac[1])+2*ar+120/scale*i},1000)
+
+			var line=paper.line(ac[0],parseFloat(ac[1])+2*ar+120/scale*i,ac[0]+ar/2,parseFloat(ac[1])+2*ar+120/scale*i).attr({temp2:1,stroke:'black',strokeWidth:.9/scale,stroke:'#bbb',strokeDasharray:[ar/2,ar/2],strokeDashoffset:ar/2})
+			g.add(line)
+			line.animate({strokeDashoffset:0},1000)
+
+			i=i+1
+		}
+		var line=paper.line(ac[0],ac[1],ac[0],ac[1]+2*ar+120/scale*(i-1)).attr({temp2:1,stroke:'black',strokeWidth:.9/scale,stroke:'#bbb',strokeDasharray:[2*ar+120/scale*(i-1),2*ar+120/scale*(i-1)],strokeDashoffset:2*ar+120/scale*(i-1)})
+		g.add(line)
+		g.add(circle)
+		line.animate({strokeDashoffset:0},1000)
+
+		setTimeout(function(){
+			circle.click(function(){
+				shrink(circle,othercircle)
+			})
+			if(zoomout!=1){
+				var i=0
+				for(var key in ethn[circle.attr('type')][1]){
+					if(key!="Other Pacific Islander"){
+						var txt=paper.text(ac[0]-5,ac[1]+2*ar+120/scale*i+1,key).attr({temp2:1,fontSize:12/scale,textAnchor:'end',opacity:0})
+						g.add(txt)
+						txt.animate({opacity:1},1000)
+					} else {
+						var txt=paper.text(ac[0]-5,ac[1]+2*ar+120/scale*i+0,"Other Pacific").attr({temp2:1,fontSize:12/scale,textAnchor:'end',opacity:0})
+						var txt2=paper.text(ac[0]-5,ac[1]+2*ar+120/scale*i+2,"Islander").attr({temp2:1,fontSize:12/scale,textAnchor:'end',opacity:0})
+						g.add(txt)
+						g.add(txt2)
+						txt.animate({opacity:1},1000)
+						txt2.animate({opacity:1},1000)
+					}
+
+					i=i+1
+					var j=1
+					var prerad=0
+					var radius=0
+					for(var key2 in ethn[circle.attr('type')][1][key][1]){
+						var prerad=prerad+2*radius
+						var radius=Math.pow((ethn[circle.attr('type')][1][key][1][key2]/ethn[circle.attr('type')][0])*aarea/Math.PI,.5)
+						if(radius<.5){radius=.5}
+						if(asa===1){var colors2=asianscale[3]}else{var colors2=piscale[3]}
+						var circ2=paper.circle(ac[0]+ar,ac[1]+2*ar+120/scale*(i-1),radius).attr({temp2:1,type:circle.attr('type'),class:'subtype',circ2:1,fill:colors2,subtype:key2,per:(100*ethn[circle.attr('type')][1][key][1][key2][0]/ethn[circle.attr('type')][0]).toFixed(2)+'%'})
+						g.add(circ2)
+						circ2.animate({cx:ac[0]+ar+radius+prerad+80/scale},1000)
+
+						j=j+1
+					}
+				}
+
+				// subtype hover
+				$('.subtype').mousemove(function(e){
+					var menu='#tooltip'
+					$(menu).html($(this).attr('subtype')+', '+$(this).attr('per')+' of<br>'+$(this).attr('type')+'s')
+					$(menu).css("left", e.clientX-5);
+					$(menu).css("top", e.clientY-15-$(menu).height());
+				})
+
+				$('.subtype').mouseout(function(e){
+					var menu='#tooltip'
+					$(menu).css("top", -9999);
+				})
+
+				var hover=paper.text(ac[0]+ar/2+24,ac[1]+ar+10/scale,'(hover/tap a circle)').attr({temp2:1,fontSize:15/scale,textAnchor:'start'})
+				g.add(hover)
+			}
+		},1000)
+
+	})
+}
+
+function shrink(circle,othercircle){
+	zoomout=1
+	circle.unclick()
+
+	circle.click(function(){
+		expand(circle,othercircle)
+	})
+
+	othercircle.click(function(){
+		expand(othercircle,circle)
+	})
+	paper.selectAll('[temp2]').animate({opacity:0},1000,function(){paper.selectAll('[temp2]').remove()})
+	g.animate({transform:'T0,0 S1'},1000,mina.easeout,function(){zoomout=0})
+}
+
+setup()
+
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
